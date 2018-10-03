@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PhoneFinderlatest</string>
+    <string name="app_name">PhoneFinderFinal</string>
     <string name="editText">Enter your passcode</string>
     <string name="button">Submit</string>
     <string name="toast">Clicked</string>

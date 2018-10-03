@@ -66,22 +66,31 @@ public class MainActivity extends AppCompatActivity implements OnSuccessListener
 
         if (checkPermission(android.Manifest.permission.SEND_SMS))
         {
-            String msg = getIntent().getStringExtra("Message");
+            //String msg = getIntent().getStringExtra("Message");
             smsManager = SmsManager.getDefault();
-            Bundle bundle = getIntent().getBundleExtra("Bundle");
-            Log.d(TAG, "onCreate: "+ getIntent().getStringExtra("Message"));
+            Bundle bundle = getIntent().getExtras();
+            String lat,lon;
+            String message;
+            if (bundle != null) {
+                lat = bundle.getString("latitude");
+                lon = bundle.getString("longitude");
+                message = "http://maps.google.com/?q="+lat+","+lon;
+                String number = bundle.getString("number");
+                smsManager.sendTextMessage(number, null,message , null, null);
+                finish();
+            }
+            //Log.d(TAG, "onCreate: "+ getIntent().getStringExtra("Message"));
 
-            Log.d("onCreate",getIntent().getStringExtra("msg"));
+            //Log.d("onCreate",getIntent().getStringExtra("msg"));
 //            if(getIntent().getStringExtra("Message")!= null && !getIntent().getStringExtra("Message").isEmpty())
 //            {
-                smsManager.sendTextMessage("9909677576", null,"hii" , null, null);
-//            }
 
-            Toast.makeText(getApplicationContext(), "SMS sent.",
-                    Toast.LENGTH_LONG).show();
+
+           // Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_LONG).show();
         }else
         {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.SEND_SMS},SEND_SMS_PERMISSION_CODE);
+            finish();
         }
 
 
@@ -124,15 +133,14 @@ public class MainActivity extends AppCompatActivity implements OnSuccessListener
 //                }
 //
 //            }
-//        });
+//        });f
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS)
                 == PackageManager.PERMISSION_GRANTED) {
             smsManager = SmsManager.getDefault();
             //smsManager.sendTextMessage("9909677576", null, "HI", null, null);
-            Toast.makeText(getApplicationContext(), "SMS sent.",
-                    Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
         }
 
         Submit.setOnClickListener(new View.OnClickListener() {

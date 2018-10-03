@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -52,7 +53,7 @@ public class GetLocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         bundle = intent.getBundleExtra("BUNDLE");
-        client = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        client = LocationServices.getFusedLocationProviderClient(this);
         final MediaPlayer mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.ringtone);
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("PASSCODE", Context.MODE_PRIVATE);
         final String passcode = sharedPreferences.getString("passcode", "");
@@ -74,6 +75,7 @@ public class GetLocationService extends Service {
                 if (location != null) {
                     mLocation = location;
                     getLocation(bundle, getApplicationContext(), passcode, mPlayer);
+
                 }
             }
         });
@@ -90,9 +92,11 @@ public class GetLocationService extends Service {
                     String sender = smsMessage.getDisplayOriginatingAddress();
                     //Check the sender to filter messages which we require to read
                     String messageBody = smsMessage.getMessageBody();
+                    String mobileNumber = smsMessage.getDisplayOriginatingAddress();
+                    Log.d("TGAS", "getLocation: "+mobileNumber);
                     if (passcode.equals(messageBody))
                     {
-                        sendSMS();
+                        sendSMS(mobileNumber);
                         AudioManager am = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
                         assert am != null;
                         if(am.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE || am.getRingerMode() == AudioManager.RINGER_MODE_SILENT || am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL){
@@ -113,21 +117,27 @@ public class GetLocationService extends Service {
         }
     }
 
-    void sendSMS(){
+    void sendSMS(String mobileNumber)
+    {
+        String string = mLocation.toString();
+        Log.d("String",string);
+        String lat = string.substring(15,24);
+        String lng = string.substring(25,34);
+        Log.d("latitude",lat+" "+lng);
 
-        Double lat = mLocation.getLatitude();
-        Double lng = mLocation.getLongitude();
-        String message = "http://maps.google.com?q="+lat+","+lng;
+//String message;
         //MainActivity.sendSMS();
         //textView.setText(location.toString());
-        message = "http://maps.google.com?q="+lat+","+lng;
+        //message = "http://maps.google.com?q="+lat+","+lng;
 //        SmsManager smsManager = SmsManager.getDefault();
-        Bundle bundle = new Bundle();
-        bundle.putString("Message",message);
+        //Bundle bundle = new Bundle();
+        //bundle.putString("Message",message);
         Intent intent = new Intent(GetLocationService.this,MainActivity.class);
         intent.putExtra("SERVICE",true);
-intent.put Dgf("msg", message);
-        intent.putExtra("Bundle",bundle);
+        intent.putExtra("latitude", lat);
+        intent.putExtra("longitude",lng);
+        intent.putExtra("number", mobileNumber);
+        //intent.putExtra("Bundle",bundle);
         startActivity(intent);
 //        smsManager.sendTextMessage("9909677576", null, message, null, null);
         Toast.makeText(getApplicationContext(), "SMS sent.",
